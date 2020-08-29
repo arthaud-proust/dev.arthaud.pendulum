@@ -1,0 +1,114 @@
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: center;
+    background: #0D0D10;
+    min-height: 100vh;
+    width: 100vw;
+    margin: 0;
+    font-family: 'Montserrat', sans-serif;
+    overflow-x: hidden;
+    /* padding: 50px 0; */
+    color: #FFF;
+}
+
+.pendul-bloc {
+    position: relative;
+}
+.pendul-canvas {
+    border-radius: 20px;
+    background: none;
+}
+.pendul-canvas-trail {
+    position: absolute;
+    border-radius: 20px;
+    /* background: #2D2D30; */
+    background: none;
+    z-index: -1;
+}
+.pendul-toggle-control {
+    position: absolute;
+    left: 30px;
+    top: calc(100vh - 45px);
+    background: url('/assets/sliders.svg') no-repeat;
+    height: 30px;
+    width: calc(100vw - 30px);
+    cursor: pointer;
+    z-index: 1000;
+}
+
+.pendul-control {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
+    padding-bottom: 40px;
+}
+.pendul-control section {
+    display: flex;
+    flex-direction: column;
+    margin: 20px;
+}
+.pendul-sharePopup {
+    position: fixed;
+    max-width: 90vw;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    padding: 10px 30px;
+    background: #2D2D30;
+    border-radius: 20px;
+    box-sizing: border-box;
+}
+@media (max-width:500px) {
+    .pendul-sharePopup {
+        width: 80vw !important;
+    }
+}
+.pendul-sharePopup kbd{ 
+    display: inline-block;
+    margin: 10px 0;
+    padding: 5px 10px;
+    border-radius: 5px;
+    background: #0d0d109f;
+    user-select: all;
+    font-size: 1.2rem;
+    word-break: break-all;
+}
+
+
+canvas {
+    display: block;
+    background: #FFFFFF;
+}
+
+input[type='range'] {
+    border:none !important;
+}
+button {
+    padding: 6px 12px;
+    margin: 3px 0;
+    cursor: pointer;
+    font-size: 1rem;
+    border-radius: 5px;
+    background: #2D2D30;
+    border: none;
+    color: #eee;
+}
+
+#credit {
+    position: absolute;
+    left: 30px;
+    bottom: 10px;
+    z-index: 100;
+    color: #4D4D60;
+    font-weight: 500;
+}
+a {
+    color:inherit
+}
