@@ -1,7 +1,7 @@
 class Pendul {
     loadConfigUrl() {
         let params = {};
-        let toLoad=['phi1', 'phi2', 'm1', 'm2', 'l1', 'l2', 'tc', 'tw', 't', 'rc']
+        let toLoad=['phi1', 'phi2', 'm1', 'm2', 'l1', 'l2', 'tc', 'tw', 't', 'rc', 'dt', 'dl', 'lc']
         let parser = document.createElement('a');
         parser.href = window.location.href;
         let query = parser.search.substring(1);
@@ -12,16 +12,20 @@ class Pendul {
         }
         toLoad.forEach(param=>{
             if(param in params) {
-                this[param] = param=='tc'?"#"+params[param]:params[param];
+                if(params[param]=="true" || params[param]=="false") {
+                    this[param] = String(params[param]) == "true";
+                } else {
+                    this[param] = param=='tc'||param=='lc'?"#"+params[param]:params[param];
+                }
             }
         });
     }
     getConfigUrl() {
-        let toLoad=['m1', 'm2', 'l1', 'l2', 'tc', 'tw', 't', 'rc']
+        let toLoad=['m1', 'm2', 'l1', 'l2', 'tc', 'tw', 't', 'rc', 'dt', 'dl', 'lc']
         let url = window.location.host+'/?';
         toLoad.forEach((param, index)=>{
             if(index>0) url+='&'
-            if(param == "tc") {
+            if(param == "tc" || param == "lc") {
                 url+= `${param}=${this[param].replace('#','')}`;
             } else if(param.includes('phi')) {
                 url+= `${param}=${Math.round(this[param]*2/(Math.PI))}`;
@@ -56,8 +60,10 @@ class Pendul {
             this.l1 = ((this.w<this.h)?this.w:this.h)/4;
             this.l2 = ((this.w<this.h)?this.w:this.h)/6;
         }
-        this.drawTrail = true;
+        this.dt = true; //draw trail
+        this.dl = true; //draw lever
         this.tc="#F8A8F8"; // trail color
+        this.lc='#99CC99'; // lever color
         this.tw=0.5; // trail width
         this.rc=false; // rainbow trail color
         this.t = 0.05;
@@ -82,9 +88,9 @@ class Pendul {
 
     init(elParent) {
         $(elParent).append(`
-            <div class="pendul-bloc">
-                <canvas id="${this.name}-trail" class="pendul-canvas-trail" width="${this.w}" height="${this.h}"></canvas>
-                <canvas id="${this.name}"  class="pendul-canvas" width="${this.w}" height="${this.h}"></canvas>
+            <div class="pendul-bloc" id="${this.name}-bloc">
+                <canvas id="${this.name}-trail" class="pendul-canvas-trail" width="${this.w}" height="${this.h}" ${this.dt?'':'style="display:none;"'}></canvas>
+                <canvas id="${this.name}"  class="pendul-canvas" width="${this.w}" height="${this.h}" ${this.dl?'':'style="opacity:0;"'}></canvas>
                 <div class="pendul-toggle-control"></div>
                 <div class="pendul-control" id="${this.name}-control" style="display:none;">
                     <section>
@@ -111,16 +117,21 @@ class Pendul {
                         <input id="t" class="pendul-input-t" type="range" min="0" max="12" value="${this.t*100}" step="2">
                         <label for="tw">Largeur de la trainée</label>
                         <input id="tw" class="pendul-input-tw" type="range" min="10" max="1010" value="${this.tw*100}" step="50">
+                        <label for="lc">Couleur du levier</label>
+                        <input id="lc" class="pendul-input-lc" type="color" value="${this.lc}">
                         <label for="tc">Couleur de la trainée</label>
-                        <input id="tc" class="pendul-input-tc" type="color" value="${this.tc}">
+                        <input id="tc" class="pendul-input-tc" type="color" value="${this.tc}" ${this.rc?'style="display:none;"':''}>
+                        
                     </section>
                     <section>
-                        <h3>Autre</h3>
+                        <h3>Plus</h3>
                         <button class="shareBtn">Partager</a>
-                        <button class="disableTrail">Enlever la trainée</a>
-                        <button class="enableTrail" style="display:none">Ajouter la trainée</a>
-                        <button class="enableRainbowColor">Couleur normale</a>
-                        <button class="disableRainbowColor" style="display:none">Couleurs arc-en-ciel</a>
+                        <button class="disableTrail" ${this.dt?'':'style="display:none;"'}>Enlever la trainée</a>
+                        <button class="enableTrail" ${this.dt?'style="display:none;"':''}>Ajouter la trainée</a>
+                        <button class="disableLever" ${this.dl?'':'style="display:none;"'}>Cacher le levier</a>
+                        <button class="enableLever" ${this.dl?'style="display:none;"':''}>Afficher le levier</a>
+                        <button class="enableRainbowColor" ${this.rc?'style="display:none;"':''}>Couleur normale</a>
+                        <button class="disableRainbowColor" ${this.rc?'':'style="display:none;"'}>Couleurs arc-en-ciel</a>
                     </section>
                     <div id="credit">Développé par <a href="https://arthaud.dev">Arthaud Proust</a> &copy2021</div>
                 </div>
@@ -149,12 +160,12 @@ class Pendul {
             this.run()
         })
 
-        $(`#${this.name}-control .pendul-input-tc`).change((e)=>{
+        $(`#${this.name}-control .pendul-input-tc, #${this.name}-control .pendul-input-lc`).change((e)=>{
             if(/^#[0-9A-F]{6}$/i.test($(e.target).val())) {
                 this[$(e.target).attr("id")] = $(e.target).val();
             }
         });
-        $(`#${this.name}-control .pendul-input-tc`).keyup((e)=>{
+        $(`#${this.name}-control .pendul-input-tc, #${this.name}-control .pendul-input-lc`).keyup((e)=>{
             if(/^#[0-9A-F]{6}$/i.test($(e.target).val())) {
                 this[$(e.target).attr("id")] = $(e.target).val();
             }
@@ -168,15 +179,36 @@ class Pendul {
             $(e.target).closest('.pendul-sharePopup').fadeOut();
         });
         $('.disableTrail').click((e)=>{
+            this.dt = false;
             $(e.target).closest('.pendul-bloc').find('.pendul-canvas-trail').fadeOut();
             $(e.target).fadeOut(()=>{
                 $(e.target).next('.enableTrail').fadeIn();
             });
         })
         $('.enableTrail').click((e)=>{
+            this.dt = true;
             $(e.target).closest('.pendul-bloc').find('.pendul-canvas-trail').fadeIn();
             $(e.target).fadeOut(()=>{
                 $(e.target).prev('.disableTrail').fadeIn();
+            });
+            
+        })
+        $('.disableLever').click((e)=>{
+            this.dl = false;
+            $(e.target).closest('.pendul-bloc').find('.pendul-canvas').animate({
+                opacity:0
+            }, 500);
+            $(e.target).fadeOut(()=>{
+                $(e.target).next('.enableLever').fadeIn();
+            });
+        })
+        $('.enableLever').click((e)=>{
+            this.dl = true;
+            $(e.target).closest('.pendul-bloc').find('.pendul-canvas').animate({
+                opacity:1
+            }, 500);
+            $(e.target).fadeOut(()=>{
+                $(e.target).prev('.disableLever').fadeIn();
             });
             
         })
@@ -197,10 +229,12 @@ class Pendul {
         })
         $('.pendul-toggle-control').click((e)=>{
             if($(e.target).closest('.pendul-bloc').find('.pendul-control').is(':visible')) {
-                $(e.target).closest('.pendul-bloc').find('.pendul-control').fadeOut();
+                $("html, body").animate({ scrollTop: 0 }, 500);
+                $(e.target).closest('.pendul-bloc').find('.pendul-control').fadeOut(500);
                 $(e.target).css("background", "url('/assets/sliders.svg') no-repeat");
             } else {
-                $(e.target).closest('.pendul-bloc').find('.pendul-control').fadeIn();
+                $(e.target).closest('.pendul-bloc').find('.pendul-control').fadeIn(1000);
+                $("html, body").animate({ scrollTop: $(window).height() }, 1000);
                 $(e.target).css("background", "url('/assets/close.svg') no-repeat");
                 
             }
@@ -275,7 +309,7 @@ class Pendul {
         this.drawLever(lever2);
         this.drawCircle(circle1);
         this.drawCircle(circle2);
-        if(this.drawTrail) {
+        if(this.dt) {
             if(this.rc) {
                 let { center, width, frequency, phase, i } = this.rainbowParams;
                 let red = Math.sin(frequency*i+2+phase) * width + center;
@@ -301,8 +335,10 @@ class Pendul {
     }
 
     drawLever(line) {
+        // strokeStyle: '#AADDAA',
+
         this.cvs.drawLine({
-            strokeStyle: '#AADDAA',
+            strokeStyle: this.lc,
             strokeWidth: 4,
             rounded: true, 
             x1: line.x0, y1: line.y0,
