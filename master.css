@@ -97,7 +97,7 @@ canvas {
 input[type='range'] {
     border:none !important;
 }
-button {
+button, .button {
     padding: 6px 12px;
     margin: 3px 0;
     cursor: pointer;
@@ -106,6 +106,8 @@ button {
     background: #2D2D30;
     border: none;
     color: #eee;
+    text-align: center;
+    text-decoration: none;
 }
 
 #credit {
