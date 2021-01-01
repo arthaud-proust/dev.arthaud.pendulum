@@ -117,9 +117,9 @@ class Pendul {
         this.dl = false; //draw lever
         this.tc='#F8A8F8'; // trail color
         this.lc='#99CC99'; // lever color
-        this.tw=7.6; // trail width
+        this.tw=1; // trail width
         this.tl=100; // trail length
-        this.rc=false; // rainbow trail color
+        this.rc=true; // rainbow trail color
         this.t = 0.05;
 
         // trail
@@ -185,7 +185,7 @@ class Pendul {
                         <label for="t">Vitesse de simulation</label>
                         <input id="t" class="pendul-input-t" type="range" min="0" max="12" value="${this.t*100}" step="2">
                         <label for="tw">Largeur de la trainée</label>
-                        <input id="tw" class="pendul-input-tw" type="range" min="10" max="1010" value="${this.tw*100}" step="50">
+                        <input id="tw" class="pendul-input-tw" type="range" min="1" max="100" value="${this.tw*100}" step="1">
                         <label for="tl">Longueur de la trainée</label>
                         <input id="tl" class="pendul-input-tl" type="range" min="10" max="510" value="${this.tl}" step="10">
                         <label for="lc">Couleur du levier</label>
@@ -458,7 +458,7 @@ class Pendul {
                     fillStyle: this.getAlphaColor(i, this.trail[i][2]),
                     x: this.trail[i][0], 
                     y: this.trail[i][1], 
-                    radius: this.tw
+                    radius: this.m2*(this.tw*i)/this.trail.length
                 });
             }
         }
