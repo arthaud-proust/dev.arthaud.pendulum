@@ -493,7 +493,7 @@ class Pendul {
         this.dl = true;
         $(`#${this.name}`).animate({
             opacity:1
-        }, 2000);
+        }, 3000);
         $(`.${this.name}-control .enableLever`).fadeOut(()=>{
             $(`.${this.name}-control .enableLever`).prev('.disableLever').fadeIn();
         });
@@ -508,5 +508,5 @@ chaotic.run();
 if(location.search=="") {
     setTimeout(function() {
         chaotic.enableLever()
-    }, 2000)
+    }, 6000)
 }
