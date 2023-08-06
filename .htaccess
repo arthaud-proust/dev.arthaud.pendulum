@@ -1,3 +1,6 @@
 <Ifmodule mod_headers.c>
     Header set Access-Control-Allow-Origin "*"
 </IfModule>
+AddHandler php-8 php8
+AddType application/x-yaml yml yaml
+RedirectMatch 404 /\.git
